@@ -1448,6 +1448,8 @@ class ASTDeclaration(ASTBaseBase):
         # set by CObject._add_enumerator_to_parent
         self.enumeratorScopedSymbol: Symbol = None
 
+        self._newest_id: Optional[str] = None  # memoization
+
     def clone(self) -> ASTDeclaration:
         return ASTDeclaration(self.objectType, self.directiveType,
                               self.declaration.clone(), self.semicolon)
@@ -1474,7 +1476,9 @@ class ASTDeclaration(ASTBaseBase):
             return id_
 
     def get_newest_id(self) -> str:
-        return self.get_id(_max_id, True)
+        if self._newest_id is None:
+            self._newest_id = self.get_id(_max_id, True)
+        return self._newest_id
 
     def _stringify(self, transform: StringifyTransform) -> str:
         res = transform(self.declaration)
